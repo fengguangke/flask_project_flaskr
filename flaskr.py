@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash,Markup
+     render_template, flash,Markup,json,jsonify
 
 
 data = [{'title':'python3 dict','text':'python dictionary object'},
@@ -17,14 +17,22 @@ def show_entries():
     entries = data
     return render_template('show_entries.html',entries=entries)
 
-@app.route('/add',methods=['POST'])
+@app.route('/add',methods=['GET','POST'])
 def add_entry():
     if not session.get('logged_in'):
         abort(401)
 
-    data.append({'title':request.form['title'],'text':request.form['text']})
+    data.append({'title': request.form['title'], 'text': request.form['text']})
     flash('New entry was successfully posted')
     return redirect(url_for('show_entries'))
+
+@app.route('/user/<username>',methods=['GET'])
+def users(username):
+    if username == 'all':
+        return jsonify(**user)
+    if username not in user['USERNAME']:
+        abort(401)
+    return jsonify(username=user['USERNAME'],password=user['PASSWORD'])
 
 @app.route('/login',methods=['GET','POST'])
 def login():
@@ -47,9 +55,12 @@ def logout():
     return redirect(url_for('show_entries'))
 
 @app.errorhandler(404)
-def error_handle(error):
+def error_handle_404(error):
     return render_template('pageNotFound.html'), 404
 
+@app.errorhandler(401)
+def error_handle_401(error):
+    return render_template('authError.html'), 401
 
 if __name__ == '__main__':
     app.run(debug=True)
