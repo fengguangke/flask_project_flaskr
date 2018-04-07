@@ -12,7 +12,6 @@ class FlaskrTestCase(unittest.TestCase):
 
     def test_login_error(self):
         rv = self.app.post('/login',data={'username':'fengguangke','password':'123123'},follow_redirects=True)
-        print(rv.data)
         assert 'invalid password' in rv.data
 
     def test_logout(self):
@@ -25,6 +24,13 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.app.post('/add',data = {'title':'<Hello>','text':'<strong>HTML</strong> allowed here'}, follow_redirects=True)
         assert 'New entry was successfully posted' in rv.data
         assert '<strong>HTML</strong> allowed here' in rv.data
+
+
+    def test_add_message_no_session(self):
+        rv = self.app.post('/add', data={'title': '<Hello>', 'text': '<strong>HTML</strong> allowed here'},
+                           follow_redirects=True)
+        print(rv.data)
+        assert 'you have no rights to visit this page' in rv.data
 
     def tearDown(self):
         pass
