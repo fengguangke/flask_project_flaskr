@@ -2,7 +2,7 @@ import os
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash,Markup,json,jsonify,config
-from Views import ListView
+from Views import ListView,UserView
 
 data = [{'title':'python3 dict','text':'python dictionary object'},
         {'title':'selenium python','text':'selenium python library and robotframework'}
@@ -13,6 +13,14 @@ app = Flask(__name__)
 
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 app.add_url_rule('/list',view_func=ListView.as_view('lists'))
+
+user_view = UserView.as_view('user_api')
+app.add_url_rule('/users/', defaults={'user_id': None},
+                 view_func=user_view, methods=['GET',])
+app.add_url_rule('/users/', view_func=user_view, methods=['POST',])
+app.add_url_rule('/users/<string:user_id>', view_func=user_view,
+                 methods=['GET','PUT', 'DELETE'])
+
 
 @app.route('/')
 def show_entries():
@@ -63,9 +71,6 @@ def error_handle_404(error):
 @app.errorhandler(401)
 def error_handle_401(error):
     return render_template('authError.html'), 401
-
-
-
 
 
 if __name__ == '__main__':
